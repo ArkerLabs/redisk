@@ -123,8 +123,8 @@ await redisk.find<User>(User, conditions, limit, offset); // Returns an array of
 
 ```ts
 const condition = {
-    key: 'color',
-    value: 'red',
+    key: 'name',
+    value: 'John',
 };
 const maxNumberOfResults = 10;
 await redisk.search<User>(User, condition, maxNumberOfResults);
