@@ -1,6 +1,6 @@
 Redisk
 =====
-[![npm version](https://badge.fury.io/js/redisj.svg)](https://badge.fury.io/js/redisk)
+[![npm version](https://badge.fury.io/js/redisk.svg)](https://badge.fury.io/js/redisk)
 
 Redisk is a TypeScript ORM library for Redis.
 
