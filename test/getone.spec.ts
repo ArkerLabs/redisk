@@ -1,4 +1,4 @@
-import { RediskTestUtils } from './redisk-test-utils';
+import { RediskTestUtils } from './utils/redisk-test-utils';
 import { users } from './fixtures/users';
 import { User } from './models/user.model';
 
