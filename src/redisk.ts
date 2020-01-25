@@ -20,7 +20,7 @@ export class Redisk {
     - Relations (Reference [Comment contains User])
      */
 
-    async commit<T>(entity: T): Promise<void> {
+    async save<T>(entity: T): Promise<void> {
 
         const {name, uniques, primary, canBeListed, indexes, properties} = this.metadata.getEntityMetadataFromInstance(entity);
 

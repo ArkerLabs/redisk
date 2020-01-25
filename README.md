@@ -74,7 +74,7 @@ const redisk = new Redisk(new Metadata(), redis.createClient({url: 'redis://127.
 ### Store one user
 
 ```ts
-await redisk.commit<User>(new User(id, name, email, color, created));
+await redisk.save<User>(new User(id, name, email, color, created));
 ```
 
 ### Get one user by his primary key
