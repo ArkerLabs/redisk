@@ -18,11 +18,11 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-    await utils.redisk.commit(users[0]);
-    await utils.redisk.commit(users[1]);
-    await utils.redisk.commit(users[2]);
-    await utils.redisk.commit(users[3]);
-    await utils.redisk.commit(users[4]);
+    await utils.redisk.save(users[0]);
+    await utils.redisk.save(users[1]);
+    await utils.redisk.save(users[2]);
+    await utils.redisk.save(users[3]);
+    await utils.redisk.save(users[4]);
 });
 
 describe('Search', () => {
