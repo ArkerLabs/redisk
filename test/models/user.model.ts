@@ -1,8 +1,8 @@
-import { Entity } from '../src/decorators/entity.decorator';
-import { Primary } from '../src/decorators/primary.decorator';
-import { Property } from '../src/decorators/property.decorator';
-import { Unique } from '../src/decorators/unique.decorator';
-import { Index } from '../src/decorators/index.decorator';
+import { Entity } from '../../src/decorators/entity.decorator';
+import { Primary } from '../../src/decorators/primary.decorator';
+import { Property } from '../../src/decorators/property.decorator';
+import { Unique } from '../../src/decorators/unique.decorator';
+import { Index } from '../../src/decorators/index.decorator';
 
 
 @Entity('user', { canBeListed: true })

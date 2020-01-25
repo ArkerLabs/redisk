@@ -1,4 +1,4 @@
-import { User } from '../user.model';
+import { User } from '../models/user.model';
 
 export const users = [
     new User('4409', 'John', 'john@email.com', 'red', new Date()),

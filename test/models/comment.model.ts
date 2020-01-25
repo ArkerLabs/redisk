@@ -1,6 +1,6 @@
-import { Entity } from '../src/decorators/entity.decorator';
-import { Primary } from '../src/decorators/primary.decorator';
-import { Property } from '../src/decorators/property.decorator';
+import { Entity } from '../../src/decorators/entity.decorator';
+import { Primary } from '../../src/decorators/primary.decorator';
+import { Property } from '../../src/decorators/property.decorator';
 
 @Entity('comment')
 export class Comment {
