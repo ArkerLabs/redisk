@@ -106,14 +106,17 @@ export class Redisk {
         }
 
         if (canBeListed) {
-            await this.client.saddAsync(this.getListKeyName(name), entity[primary]);
+            await this.client.rpushAsync(this.getListKeyName(name), entity[primary]);
         }
 
         return null;
     }
 
     async count<T>(entityType: Type<T>): Promise<number> {
-        return (await this.listIds(entityType)).length;
+        const { name } = this.metadata.getEntityMetadataFromType(entityType);
+        const keyName = this.getListKeyName(name);
+
+        return await this.client.llenAsync(keyName);
     }
 
     async list<T>(entityType: Type<T>, limit?: number, offset?: number, orderBy?: OrderBy): Promise<T[]> {
@@ -220,18 +223,20 @@ export class Redisk {
 
         const keyName = this.getListKeyName(name);
 
+        let start = 0;
+        let stop = -1;
+
+        if (offset !== undefined) {
+            start = offset;
+        }
+
+        if (limit !== undefined) {
+            stop = start + limit - 1;
+        }
+
         if (orderBy !== undefined) {
             const sortableKey = this.getSortableKeyName(name, orderBy.field);
-            let start = 0;
-            let stop = -1;
-
-            if (offset !== undefined) {
-                start = offset;
-            }
-
-            if (limit !== undefined) {
-                stop = start + limit - 1;
-            }
+            
 
             if (orderBy.strategy === 'ASC') {
                 return await this.client.zrangeAsync(sortableKey, start, stop);
@@ -240,14 +245,7 @@ export class Redisk {
             }
         }
 
-        if (limit !== undefined || offset !== undefined) {
-            if (limit === undefined || offset === undefined) {
-                throw new Error('You must specify limit and offset, not just one arg.');
-            }
-
-            return await this.client.sortAsync(keyName, 'ALPHA', 'LIMIT', limit, offset);
-        }
-        return await this.client.smembersAsync(keyName);
+        return await this.client.lrangeAsync(keyName, start, stop);
     }
 
     async delete<T>(entityType: Type<T>, id: string): Promise<void> {
@@ -263,7 +261,7 @@ export class Redisk {
         }
 
         if (canBeListed) {
-            await this.client.sremAsync(this.getListKeyName(name), id);
+            await this.client.lremAsync(this.getListKeyName(name), 1, id);
         }
 
         await this.dropSortables(persistedEntity);
