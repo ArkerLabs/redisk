@@ -160,8 +160,9 @@ export class Redisk {
         const ids = await this.searchIds(entityType, condition, limit);
         const response = [];
 
-        for (const id of ids) {
-            response.push(await this.getOne(entityType, id));
+        const numberOfResult = (ids.length < limit) ? ids.length : limit;
+        for (let index = 0; index < numberOfResult; index++) {
+            response.push(await this.getOne(entityType, ids[index]));
         }
 
         return response;
