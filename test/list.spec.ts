@@ -23,7 +23,7 @@ beforeEach(async () => {
     await utils.redisk.commit(users[2]);
     await utils.redisk.commit(users[3]);
     await utils.redisk.commit(users[4]);
-})
+});
 
 describe('List without params', () => {
     it('should return all persisted entities', async () => {

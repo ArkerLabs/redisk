@@ -23,6 +23,10 @@ export class User {
   @Property()
   public readonly color: string;
 
+  @Index()
+  @Property()
+  public readonly food: string;
+
   @Property({sortable: true, searchable: false})
   public readonly created: Date;
 
@@ -31,12 +35,14 @@ export class User {
       name: string,
       email: string,
       color: string,
+      food: string,
       created: Date,
     ) {
       this.id = id;
       this.name = name;
       this.email = email;
       this.color = color;
+      this.food = food;
       this.created = created;
   }
 }

@@ -21,7 +21,7 @@ beforeEach(async () => {
     await utils.redisk.commit(users[0]);
     await utils.redisk.commit(users[1]);
     await utils.redisk.commit(users[2]);
-})
+});
 
 describe('Get one by existing ID', () => {
     it('should return persisted entity', async () => {

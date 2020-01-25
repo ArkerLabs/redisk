@@ -22,7 +22,7 @@ beforeEach(async () => {
     await utils.redisk.commit(users[1]);
     await utils.redisk.commit(users[2]);
     await utils.redisk.commit(users[3]);
-})
+});
 
 describe('Count', () => {
     it('should return number of persisted entities', async () => {
