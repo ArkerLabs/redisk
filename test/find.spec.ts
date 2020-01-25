@@ -1,8 +1,8 @@
 import { RediskTestUtils } from './utils/redisk-test-utils';
 import { users } from './fixtures/users';
 import { User } from './models/user.model';
-
-let utils; 
+ 
+let utils: RediskTestUtils; 
 
 beforeAll(async () => {
     utils = new RediskTestUtils();

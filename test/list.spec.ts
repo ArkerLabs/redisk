@@ -2,7 +2,7 @@ import { RediskTestUtils } from './utils/redisk-test-utils';
 import { users } from './fixtures/users';
 import { User } from './models/user.model';
 
-let utils; 
+let utils: RediskTestUtils; 
 
 beforeAll(async () => {
     utils = new RediskTestUtils();
@@ -56,7 +56,7 @@ describe('List with order by asc and limit and offset', () => {
 
 describe('List with order by desc', () => {
     it('should return persisted entities sorted', async () => {
-        const response = await utils.redisk.list(User, undefined, undefined, { field: 'created', strategy: 'desc' });
+        const response = await utils.redisk.list(User, undefined, undefined, { field: 'created', strategy: 'DESC' });
         expect(response).toEqual(users.reverse());
     });
 });

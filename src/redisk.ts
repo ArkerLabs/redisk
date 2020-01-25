@@ -36,7 +36,7 @@ export class Redisk {
                     if (property.searchable) {
                         await this.client.sremAsync(
                             this.getSearchableKeyName(name, property.name),
-                            this.getSearchableValuePrefix(entity[primary]) + persistedEntity[property.name],
+                            this.getSearchableValuePrefix(entity[primary]) + persistedEntity[property.name].toLowerCase(),
                         );
                     }
                     if (property.sortable) {
@@ -91,7 +91,6 @@ export class Redisk {
                 if (property.searchable === true) {
                     await this.client.saddAsync(
                         this.getSearchableKeyName(name, property.name),
-                        1,
                         this.getSearchableValuePrefix(entity[primary]) + entity[property.name].toLowerCase(),
                     );
                 }
@@ -105,7 +104,7 @@ export class Redisk {
             }
         }
 
-        if (canBeListed) {
+        if (canBeListed && persistedEntity === null) {
             await this.client.rpushAsync(this.getListKeyName(name), entity[primary]);
         }
 
