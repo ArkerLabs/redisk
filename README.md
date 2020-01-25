@@ -66,7 +66,9 @@ export class User {
 ### Init Redisk
 
 ```ts
-const redisk = new Redisk(new Metadata(), 'redis://127.0.0.1:6379/0');
+import * as redis from 'redis';
+
+const redisk = new Redisk(new Metadata(), redis.createClient({url: 'redis://127.0.0.1:6379/0'}));
 ```
 
 ### Store one user

@@ -1,6 +1,6 @@
 {
   "name": "redisk",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "TypeScript ORM for Redis.",
   "main": "index.js",
   "directories": {
@@ -13,11 +13,11 @@
     "publish:npm": "npm publish --access public",
     "prepublish:next": "npm run build",
     "publish:next": "npm publish --access public --tag next",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --no-cache --runInBand"
   },
   "dependencies": {
-    "redis": "^2.8.0",
     "bluebird": "^3.7.2",
+    "redis": "^2.8.0",
     "reflect-metadata": "^0.1.13"
   },
   "repository": {
@@ -34,5 +34,26 @@
   "bugs": {
     "url": "https://github.com/ArkerLabs/redisk/issues"
   },
-  "homepage": "https://github.com/ArkerLabs/redisk#readme"
+  "homepage": "https://github.com/ArkerLabs/redisk#readme",
+  "devDependencies": {
+    "@types/jest": "^24.9.1",
+    "jest": "^25.1.0",
+    "ts-jest": "^25.0.0",
+    "typescript": "^3.7.5"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "test",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node",
+    "verbose": true
+  }
 }

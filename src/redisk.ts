@@ -8,14 +8,11 @@ import { OrderBy } from './interfaces/orderby';
 
 export class Redisk {
 
-    private readonly client;
-
     constructor(
         private readonly metadata: Metadata,
-        redisURL: string,
+        private readonly client: redis.RedisClient,
     ) {
         bluebird.promisifyAll(redis);
-        this.client = redis.createClient({url: redisURL});
     }
 
     /*
