@@ -348,19 +348,25 @@ export class Redisk {
     }
 
     private async dropSearchables<T>(entity: T): Promise<void> {
-        const { name, properties } = this.metadata.getEntityMetadataFromInstance(entity);
+        const { name, properties, primary } = this.metadata.getEntityMetadataFromInstance(entity);
         for (const property of properties) {
-            if (property.sortable === true) {
-                await this.client.delAsync(this.getSearchableKeyName(name, property.name));
+            if (property.searchable === true) {
+                await this.client.sremAsync(
+                    this.getSearchableKeyName(name, property.name),
+                    this.getSearchableValuePrefix(entity[primary]) + entity[property.name].toLowerCase(),
+                );
             }
         }
     }
 
     private async dropSortables<T>(entity: T): Promise<void> {
-        const { name, properties } = this.metadata.getEntityMetadataFromInstance(entity);
+        const { name, properties, primary } = this.metadata.getEntityMetadataFromInstance(entity);
         for (const property of properties) {
             if (property.sortable === true) {
-                await this.client.delAsync(this.getSortableKeyName(name, property.name));
+                await this.client.zremAsync(
+                    this.getSortableKeyName(name, property.name),
+                    entity[primary],
+                );
             }
         }
     }
