@@ -15,11 +15,6 @@ export class Redisk {
         bluebird.promisifyAll(redis);
     }
 
-    /*
-    TODO
-    - Relations (Reference [Comment contains User])
-     */
-
     async save<T>(entity: T): Promise<void> {
 
         const {name, uniques, primary, canBeListed, indexes, properties, hasOneRelations} = this.metadata.getEntityMetadataFromInstance(entity);
