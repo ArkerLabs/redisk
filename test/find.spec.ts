@@ -1,6 +1,7 @@
 import { RediskTestUtils } from './utils/redisk-test-utils';
 import { users } from './fixtures/users';
 import { User } from './models/user.model';
+import { groups } from './fixtures/groups';
  
 let utils: RediskTestUtils; 
 
@@ -37,6 +38,20 @@ describe('Find with one condition', () => {
                 }
             ],
         )).sort()).toEqual([users[0], users[4]].sort());
+    });
+});
+
+describe('Find with relation index', () => {
+    it('should return filtered persisted entities', async () => {
+        expect((await utils.redisk.find(
+            User,
+            [
+                {
+                    key: 'group',
+                    value: groups[0].id,
+                }
+            ],
+        )).sort()).toEqual([users[0], users[1]].sort());
     });
 });
 

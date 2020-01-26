@@ -22,7 +22,7 @@ export class Redisk {
 
     async save<T>(entity: T): Promise<void> {
 
-        const {name, uniques, primary, canBeListed, indexes, properties} = this.metadata.getEntityMetadataFromInstance(entity);
+        const {name, uniques, primary, canBeListed, indexes, properties, hasOneRelations} = this.metadata.getEntityMetadataFromInstance(entity);
 
         const hashKey = name + ':' + entity[primary];
 
@@ -33,6 +33,15 @@ export class Redisk {
             for (const property of properties) {
                 if (entity[property.name] !== persistedEntity[property.name]) {
                     changedFields.push(property.name);
+
+                    if (entity[property.name] === null) {
+                        await this.client.hdelAsync(hashKey, property.name);
+                    }
+
+                    if (hasOneRelations !== undefined && hasOneRelations[property.name] && hasOneRelations[property.name].cascadeUpdate && entity[property.name] !== null) {
+                        await this.save(entity[property.name]);
+                    }
+
                     if (property.searchable) {
                         await this.client.sremAsync(
                             this.getSearchableKeyName(name, property.name),
@@ -67,18 +76,32 @@ export class Redisk {
                 if (entityWithUnique !== null && entityWithUnique[primary] !== entity[primary]) {
                     throw new Error(uniqueName + ' is not unique!');
                 }
-                await this.client.setAsync(
-                    this.getUniqueKeyName(name, uniqueName) + ':' + entity[uniqueName],
-                    entity[primary],
-                );
+                if (entity[uniqueName] !== null) {
+                    await this.client.setAsync(
+                        this.getUniqueKeyName(name, uniqueName) + ':' + entity[uniqueName],
+                        entity[primary],
+                    );
+                }
             }
         }
 
         const valuesToStore = [];
         for (const property of properties) {
             if (entity[property.name] !== null) {
+
+                let valueToStore = this.convertPropertyTypeToPrimitive(property, entity[property.name]);
+
+                if (hasOneRelations !== undefined && hasOneRelations[property.name]) {
+                    const relatedEntity = this.metadata.getEntityMetadataFromName(hasOneRelations[property.name].entity);
+                    valueToStore = entity[property.name][relatedEntity.primary];
+
+                    if (hasOneRelations[property.name].cascadeInsert && persistedEntity === null && entity[property.name] !== null) {
+                        await this.save(entity[property.name]);
+                    }
+                }
+
                 valuesToStore.push(property.name);
-                valuesToStore.push(this.convertPropertyTypeToPrimitive(property, entity[property.name]));
+                valuesToStore.push(valueToStore);
 
                 if (property.sortable === true) {
                     await this.client.zaddAsync(
@@ -100,7 +123,14 @@ export class Redisk {
 
         if (indexes) {
             for (const indexName of indexes) {
-                await this.client.saddAsync(this.getIndexKeyName(name, indexName, entity[indexName]), entity[primary]);
+                let value = entity[indexName];
+                if (hasOneRelations !== undefined && hasOneRelations[indexName] && entity[indexName] !== null) {
+                    const relatedEntity = this.metadata.getEntityMetadataFromName(hasOneRelations[indexName].entity);
+                    value = entity[indexName][relatedEntity.primary];
+                }
+                if (value !== null) {
+                    await this.client.saddAsync(this.getIndexKeyName(name, indexName, value), entity[primary]);
+                }
             }
         }
 
@@ -273,7 +303,7 @@ export class Redisk {
     async getOne<T>(entityType: Type<T>, value: any, key?: string): Promise<T> {
         const entity = Object.create(entityType.prototype);
         const valueAsString = String(value);
-        const { name, uniques, primary, properties } = this.metadata.getEntityMetadataFromType(entityType);
+        const { name, uniques, primary, properties, hasOneRelations } = this.metadata.getEntityMetadataFromType(entityType);
 
         // Search for indexes
         let id: string;
@@ -297,7 +327,11 @@ export class Redisk {
         const result = await this.client.hmgetAsync(hashKey, properties.map((property: PropertyMetadata) => property.name));
         let index = 0;
         for (const resultKey of result) {
-            entity[properties[index].name] = this.convertStringToPropertyType(properties[index], resultKey);
+            if (hasOneRelations !== undefined && hasOneRelations[properties[index].name] && resultKey !== null) {
+                entity[properties[index].name] = await this.getOne(hasOneRelations[properties[index].name].entityType as any, resultKey);
+            } else {
+                entity[properties[index].name] = this.convertStringToPropertyType(properties[index], resultKey);
+            }
             index++;
         }
         if (entity[primary] === null) {
@@ -339,10 +373,15 @@ export class Redisk {
     }
 
     private async dropIndexes<T>(entity: T, id: string): Promise<void> {
-        const { name, indexes } = this.metadata.getEntityMetadataFromInstance(entity);
+        const { name, indexes, hasOneRelations } = this.metadata.getEntityMetadataFromInstance(entity);
         if (indexes) {
             for (const indexName of indexes) {
-                await this.client.sremAsync(this.getIndexKeyName(name, indexName, entity[indexName]), id);
+                let value = entity[indexName];
+                if (hasOneRelations !== undefined && hasOneRelations[indexName]) {
+                    const relatedEntity = this.metadata.getEntityMetadataFromName(hasOneRelations[indexName].entity);
+                    value = entity[indexName][relatedEntity.primary];
+                }
+                await this.client.sremAsync(this.getIndexKeyName(name, indexName, value), id);
             }
         }
     }

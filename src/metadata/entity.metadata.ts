@@ -1,4 +1,5 @@
 import { PropertyMetadata } from './property.metadata';
+import { HasOneOptions } from '../interfaces';
 
 export interface EntityMetadata {
     name: string;
@@ -7,4 +8,5 @@ export interface EntityMetadata {
     uniques: string[];
     properties: PropertyMetadata[];
     canBeListed: boolean;
+    hasOneRelations: {[key: string]: HasOneOptions };
 }

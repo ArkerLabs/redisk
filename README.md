@@ -44,6 +44,10 @@ export class User {
   @Property()
   public readonly color: string;
 
+  @HasOne(Group, {cascadeInsert: true, cascadeUpdate: true})
+  @Property()
+  public readonly group: Group;
+
   @Property({sortable: true, searchable: false})
   public readonly created: Date;
 
@@ -52,12 +56,14 @@ export class User {
       name: string,
       email: string,
       color: string,
+      group: Group,
       created: Date,
     ) {
       this.id = id;
       this.name = name;
       this.email = email;
       this.color = color;
+      this.group = group;
       this.created = created;
   }
 }

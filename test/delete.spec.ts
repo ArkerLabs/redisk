@@ -1,6 +1,7 @@
 import { RediskTestUtils } from './utils/redisk-test-utils';
 import { users } from './fixtures/users';
 import { User } from './models/user.model';
+import { groups } from './fixtures/groups';
 
 let utils: RediskTestUtils; 
 
@@ -34,6 +35,7 @@ describe('Delete', () => {
 
         expect(await utils.connection.sinterAsync('user:index:color:' + users[0].color)).toEqual([]);
         expect(await utils.connection.sinterAsync('user:index:food:' + users[0].food)).toEqual([ users[2].id ]);
+        expect(await utils.connection.sinterAsync('user:index:group:' + groups[0].id)).toEqual([ users[1].id ]);
 
         expect(await utils.connection.zrangeAsync('user:sort:created', 0, -1)).toEqual([ users[1].id, users[2].id ]);
 

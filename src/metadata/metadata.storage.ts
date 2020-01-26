@@ -9,6 +9,7 @@ export class MetadataStorage {
         uniques: {},
         properties: {},
         primary: {},
+        hasOneRelations: {},
     };
 
     static getGlobal(): StateMetadata {

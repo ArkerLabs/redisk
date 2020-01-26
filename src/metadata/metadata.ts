@@ -12,9 +12,17 @@ export class Metadata {
         return this.getEntityMetadata(entityType.name);
     }
 
-    private getEntityMetadata<T>(entityName: string): EntityMetadata {
-        const { names, indexes, primary, properties, canBeListed, uniques } = MetadataStorage.getGlobal();
+    public getEntityMetadataFromName(entityName: string): EntityMetadata {
+        return this.getEntityMetadata(entityName);
+    }
 
+    private getEntityMetadata<T>(entityName: string): EntityMetadata {
+        const { names, indexes, primary, properties, canBeListed, uniques, hasOneRelations } = MetadataStorage.getGlobal();
+
+        if (names[entityName] === undefined) {
+            throw new Error(entityName + ' is not an entity!');
+        }
+        
         if (primary[entityName] === undefined) {
             throw new Error(entityName + ' doesn\'t have a primary key defined!');
         }
@@ -26,6 +34,7 @@ export class Metadata {
             uniques: uniques[entityName],
             properties: properties[entityName],
             canBeListed: canBeListed[entityName],
+            hasOneRelations: hasOneRelations[entityName],
         };
     }
 

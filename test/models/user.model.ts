@@ -3,6 +3,8 @@ import { Primary } from '../../src/decorators/primary.decorator';
 import { Property } from '../../src/decorators/property.decorator';
 import { Unique } from '../../src/decorators/unique.decorator';
 import { Index } from '../../src/decorators/index.decorator';
+import { HasOne } from '../../src/decorators/hasone.decorator';
+import { Group } from './group.model';
 
 
 @Entity('user', { canBeListed: true })
@@ -27,6 +29,11 @@ export class User {
   @Property()
   public readonly food: string;
 
+  @HasOne(Group, {cascadeInsert: true, cascadeUpdate: true})
+  @Index()
+  @Property()
+  public readonly group: Group;
+
   @Property({sortable: true, searchable: false})
   public readonly created: Date;
 
@@ -36,6 +43,7 @@ export class User {
       email: string,
       color: string,
       food: string,
+      group: Group,
       created: Date,
     ) {
       this.id = id;
@@ -43,6 +51,7 @@ export class User {
       this.email = email;
       this.color = color;
       this.food = food;
+      this.group = group;
       this.created = created;
   }
 }
