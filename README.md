@@ -30,7 +30,7 @@ export class User {
   public readonly id: string;
 
   @Property()
-  public readonly name: string;
+  public name: string;
 
   constructor(
       id: string,
@@ -67,7 +67,8 @@ npm install redisk --save
 - - [Index](#index)
 - - [Embedding other entities](#embedding-other-entities)
 - [Queries](#queries)
-- - [Save and Update](#save-and-update)
+- - [Save](#save)
+- - [Update](#update)
 - - [Get by primary key](#get-by-primary-key)
 - - [Get by unique key](#get-by-unique-key)
 - - [Count](#count)
@@ -113,22 +114,22 @@ export class User {
   public readonly id: string;
 
   @Property({sortable: false, searchable: true})
-  public readonly name: string;
+  public name: string;
 
   @Unique()
   @Property()
-  public readonly email: string;
+  public email: string;
 
   @Index()
   @Property()
-  public readonly color: string;
+  public color: string;
 
   @HasOne(Group, {cascadeInsert: true, cascadeUpdate: true})
   @Property()
-  public readonly group: Group;
+  public group: Group;
 
   @Property({sortable: true, searchable: false})
-  public readonly created: Date;
+  public created: Date;
 
   constructor(
       id: string,
@@ -238,10 +239,18 @@ export class User {
 
 ## Queries
 
-### Save and update
+### Save
 
 ```ts
 await redisk.save(new User(id, name));
+```
+
+### Update
+
+```ts
+const user = await redisk.getOne(User, id);
+user.name = 'Bar';
+await redisk.save(user);
 ```
 
 ### Get by primary key
