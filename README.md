@@ -151,7 +151,8 @@ export class User {
 ### Entity
 Use the decorator `Entity` to convert your class into a Redisk entity.
 
-You can pass the option canBeListed to 'false' (Default is true) to save some space.
+You can pass the option canBeListed to 'false' (Default is true) to save some space, but you will not be able to list user entities. 
+
 ```ts
 @Entity('user', { canBeListed: true })
 export class User {
