@@ -36,7 +36,7 @@ describe('Save with cascade insert', () => {
 
         await utils.redisk.save(user);
 
-        const storedUser = await utils.connection.hgetallAsync('user:' + id);
+        const storedUser = await utils.redisk.getClient().hgetall('user:' + id);
         expect(storedUser).toEqual({
             id,
             name,
@@ -46,23 +46,23 @@ describe('Save with cascade insert', () => {
             group: group.id,
             created: String(created.valueOf()),
         });
-        const storedGroup = await utils.connection.hgetallAsync('group:' + group.id);
+        const storedGroup = await utils.redisk.getClient().hgetall('group:' + group.id);
         expect(storedGroup).toEqual({
             id: group.id,
             name: group.name,
         });
 
-        expect(await utils.connection.getAsync('user:unique:email:' + email)).toEqual(id);
+        expect(await utils.redisk.getClient().get('user:unique:email:' + email)).toEqual(id);
 
-        expect(await utils.connection.lrangeAsync('user:list', 0, -1)).toEqual([ users[0].id, id ]);
+        expect(await utils.redisk.getClient().lrange('user:list', 0, -1)).toEqual([ users[0].id, id ]);
 
-        expect(await utils.connection.sinterAsync('user:index:color:' + color)).toEqual([ id, users[0].id ]);
-        expect(await utils.connection.sinterAsync('user:index:food:' + food)).toEqual([ id ]);
+        expect(await utils.redisk.getClient().sinter('user:index:color:' + color)).toEqual([ users[0].id, id ]);
+        expect(await utils.redisk.getClient().sinter('user:index:food:' + food)).toEqual([ id ]);
 
-        expect(await utils.connection.zrangeAsync('user:sort:created', 0, -1)).toEqual([ id, users[0].id ]);
+        expect(await utils.redisk.getClient().zrange('user:sort:created', 0, -1)).toEqual([ id, users[0].id ]);
 
-        expect(await utils.connection.smembersAsync('user:search:name')).toEqual(
-            [ id + ':_id_:' + name.toLowerCase(), users[0].id + ':_id_:' + users[0].name.toLowerCase() ]
+        expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
+            [  users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + name.toLowerCase() ]
         );
     });
 });
@@ -97,7 +97,7 @@ describe('Update persisted entity with cascade update', () => {
         const updatedUser = new User(id, newName, newEmail, newColor, food, group2, newCreated);
         await utils.redisk.save(updatedUser);
 
-        const storedUser = await utils.connection.hgetallAsync('user:' + id);
+        const storedUser = await utils.redisk.getClient().hgetall('user:' + id);
         expect(storedUser).toEqual({
             id,
             name: newName,
@@ -107,25 +107,25 @@ describe('Update persisted entity with cascade update', () => {
             group: group.id,
             created: String(newCreated.valueOf()),
         });
-        const storedGroup = await utils.connection.hgetallAsync('group:' + group.id);
+        const storedGroup = await utils.redisk.getClient().hgetall('group:' + group.id);
         expect(storedGroup).toEqual({
             id: group.id,
             name: group2.name,
         });
 
-        expect(await utils.connection.getAsync('user:unique:email:' + newEmail)).toEqual(id);
-        expect(await utils.connection.getAsync('user:unique:email:' + email)).toBeNull();
+        expect(await utils.redisk.getClient().get('user:unique:email:' + newEmail)).toEqual(id);
+        expect(await utils.redisk.getClient().get('user:unique:email:' + email)).toBeNull();
 
-        expect(await utils.connection.lrangeAsync('user:list', 0, -1)).toEqual([ users[0].id, id ]);
+        expect(await utils.redisk.getClient().lrange('user:list', 0, -1)).toEqual([ users[0].id, id ]);
 
-        expect(await utils.connection.sinterAsync('user:index:color:' + color)).toEqual([ users[0].id ]);
-        expect(await utils.connection.sinterAsync('user:index:color:' + newColor)).toEqual([ id ]);
-        expect(await utils.connection.sinterAsync('user:index:food:' + food)).toEqual([ id ]);
+        expect(await utils.redisk.getClient().sinter('user:index:color:' + color)).toEqual([ users[0].id ]);
+        expect(await utils.redisk.getClient().sinter('user:index:color:' + newColor)).toEqual([ id ]);
+        expect(await utils.redisk.getClient().sinter('user:index:food:' + food)).toEqual([ id ]);
 
-        expect(await utils.connection.zrangeAsync('user:sort:created', 0, -1)).toEqual([ users[0].id, id ]);
+        expect(await utils.redisk.getClient().zrange('user:sort:created', 0, -1)).toEqual([ users[0].id, id ]);
 
-        expect(await utils.connection.smembersAsync('user:search:name')).toEqual(
-            [ id + ':_id_:' + newName.toLowerCase(), users[0].id + ':_id_:' + users[0].name.toLowerCase() ]
+        expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
+            [ users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + newName.toLowerCase() ]
         );
     });
 });
@@ -142,7 +142,7 @@ describe('Update persisted entity', () => {
         const updatedUser = new User(id, newName, newEmail, newColor, food, null, newCreated);
         await utils.redisk.save(updatedUser);
 
-        const storedUser = await utils.connection.hgetallAsync('user:' + id);
+        const storedUser = await utils.redisk.getClient().hgetall('user:' + id);
         expect(storedUser).toEqual({
             id,
             name: newName,
@@ -152,18 +152,18 @@ describe('Update persisted entity', () => {
             created: String(newCreated.valueOf()),
         });
 
-        expect(await utils.connection.getAsync('user:unique:email:' + newEmail)).toEqual(id);
+        expect(await utils.redisk.getClient().get('user:unique:email:' + newEmail)).toEqual(id);
 
-        expect(await utils.connection.lrangeAsync('user:list', 0, -1)).toEqual([ users[0].id, id ]);
+        expect(await utils.redisk.getClient().lrange('user:list', 0, -1)).toEqual([ users[0].id, id ]);
 
-        expect(await utils.connection.sinterAsync('user:index:color:' + color)).toEqual([ users[0].id ]);
-        expect(await utils.connection.sinterAsync('user:index:color:' + newColor)).toEqual([ id ]);
-        expect(await utils.connection.sinterAsync('user:index:food:' + food)).toEqual([ id ]);
+        expect(await utils.redisk.getClient().sinter('user:index:color:' + color)).toEqual([ users[0].id ]);
+        expect(await utils.redisk.getClient().sinter('user:index:color:' + newColor)).toEqual([ id ]);
+        expect(await utils.redisk.getClient().sinter('user:index:food:' + food)).toEqual([ id ]);
 
-        expect(await utils.connection.zrangeAsync('user:sort:created', 0, -1)).toEqual([ users[0].id, id ]);
+        expect(await utils.redisk.getClient().zrange('user:sort:created', 0, -1)).toEqual([ users[0].id, id ]);
 
-        expect(await utils.connection.smembersAsync('user:search:name')).toEqual(
-            [ id + ':_id_:' + newName.toLowerCase(), users[0].id + ':_id_:' + users[0].name.toLowerCase() ]
+        expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
+            [ users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + newName.toLowerCase() ]
         );
     });
 });

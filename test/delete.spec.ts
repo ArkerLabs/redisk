@@ -27,19 +27,19 @@ beforeEach(async () => {
 describe('Delete', () => {
     it('should remove persisted entity', async () => {
         await utils.redisk.delete(User, users[0].id);
-        expect(await utils.connection.hgetallAsync('user:' + users[0].id)).toBeNull();
+        expect(await utils.redisk.getClient().hgetall('user:' + users[0].id)).toBeNull();
 
-        expect(await utils.connection.getAsync('user:unique:email:' + users[0].email)).toBeNull();
+        expect(await utils.redisk.getClient().get('user:unique:email:' + users[0].email)).toBeNull();
 
-        expect(await utils.connection.lrangeAsync('user:list', 0, -1)).toEqual([ users[1].id, users[2].id ]);
+        expect(await utils.redisk.getClient().lrange('user:list', 0, -1)).toEqual([ users[1].id, users[2].id ]);
 
-        expect(await utils.connection.sinterAsync('user:index:color:' + users[0].color)).toEqual([]);
-        expect(await utils.connection.sinterAsync('user:index:food:' + users[0].food)).toEqual([ users[2].id ]);
-        expect(await utils.connection.sinterAsync('user:index:group:' + groups[0].id)).toEqual([ users[1].id ]);
+        expect(await utils.redisk.getClient().sinter('user:index:color:' + users[0].color)).toEqual([]);
+        expect(await utils.redisk.getClient().sinter('user:index:food:' + users[0].food)).toEqual([ users[2].id ]);
+        expect(await utils.redisk.getClient().sinter('user:index:group:' + groups[0].id)).toEqual([ users[1].id ]);
 
-        expect(await utils.connection.zrangeAsync('user:sort:created', 0, -1)).toEqual([ users[1].id, users[2].id ]);
+        expect(await utils.redisk.getClient().zrange('user:sort:created', 0, -1)).toEqual([ users[1].id, users[2].id ]);
 
-        expect(await utils.connection.smembersAsync('user:search:name')).toEqual(
+        expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
             [ users[2].id + ':_id_:' + users[2].name.toLowerCase(), users[1].id + ':_id_:' + users[1].name.toLowerCase() ]
         );
     });

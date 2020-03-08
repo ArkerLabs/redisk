@@ -51,7 +51,7 @@ describe('Find with relation index', () => {
                     value: groups[0].id,
                 }
             ],
-        )).sort()).toEqual([users[0], users[1]].sort());
+        )).sort()).toEqual([users[1], users[0]].sort());
     });
 });
 
@@ -106,6 +106,6 @@ describe('Find with two OR condition', () => {
             undefined,
             undefined,
             'OR',
-        )).sort()).toEqual([users[0], users[1], users[4]]);
+        )).sort()).toEqual([users[1], users[0], users[4]]);
     });
 });

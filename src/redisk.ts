@@ -1,18 +1,28 @@
 import { Type } from './metadata/type';
-import * as redis from 'redis';
-import * as bluebird from 'bluebird';
 import { Metadata } from './metadata/metadata';
 import { PropertyMetadata } from './metadata/property.metadata';
 import { Condition } from './interfaces/condition';
 import { OrderBy } from './interfaces/orderby';
+import { ClientOptions, Client, RedisClient } from './client';
 
 export class Redisk {
 
     constructor(
         private readonly metadata: Metadata,
-        private readonly client: redis.RedisClient,
+        private readonly client: Client,
     ) {
-        bluebird.promisifyAll(redis);
+    }
+
+    static init(options: ClientOptions) {
+        return new Redisk(new Metadata(), new RedisClient(options));
+    }
+
+    async close() {
+        await this.client.closeConnection();
+    }
+
+    getClient(): Client {
+        return this.client;
     }
 
     async save<T>(entity: T): Promise<void> {
@@ -30,7 +40,7 @@ export class Redisk {
                     changedFields.push(property.name);
 
                     if (entity[property.name] === null) {
-                        await this.client.hdelAsync(hashKey, property.name);
+                        await this.client.hdel(hashKey, property.name);
                     }
 
                     if (hasOneRelations !== undefined && hasOneRelations[property.name] && hasOneRelations[property.name].cascadeUpdate && entity[property.name] !== null) {
@@ -38,13 +48,13 @@ export class Redisk {
                     }
 
                     if (property.searchable) {
-                        await this.client.sremAsync(
+                        await this.client.srem(
                             this.getSearchableKeyName(name, property.name),
                             this.getSearchableValuePrefix(entity[primary]) + persistedEntity[property.name].toLowerCase(),
                         );
                     }
                     if (property.sortable) {
-                        await this.client.zremAsync(this.getSortableKeyName(name, property.name), persistedEntity[property.name]);
+                        await this.client.zrem(this.getSortableKeyName(name, property.name), persistedEntity[property.name]);
                     }
                 }
             }
@@ -72,7 +82,7 @@ export class Redisk {
                     throw new Error(uniqueName + ' is not unique!');
                 }
                 if (entity[uniqueName] !== null) {
-                    await this.client.setAsync(
+                    await this.client.set(
                         this.getUniqueKeyName(name, uniqueName) + ':' + entity[uniqueName],
                         entity[primary],
                     );
@@ -99,7 +109,7 @@ export class Redisk {
                 valuesToStore.push(valueToStore);
 
                 if (property.sortable === true) {
-                    await this.client.zaddAsync(
+                    await this.client.zadd(
                         this.getSortableKeyName(name, property.name),
                         this.convertPropertyTypeToPrimitive(property, entity[property.name]),
                         entity[primary],
@@ -107,14 +117,14 @@ export class Redisk {
                 }
 
                 if (property.searchable === true) {
-                    await this.client.saddAsync(
+                    await this.client.sadd(
                         this.getSearchableKeyName(name, property.name),
                         this.getSearchableValuePrefix(entity[primary]) + entity[property.name].toLowerCase(),
                     );
                 }
             }
         }
-        await this.client.hmsetAsync(hashKey, valuesToStore);
+        await this.client.hmset(hashKey, valuesToStore);
 
         if (indexes) {
             for (const indexName of indexes) {
@@ -124,13 +134,13 @@ export class Redisk {
                     value = entity[indexName][relatedEntity.primary];
                 }
                 if (value !== null) {
-                    await this.client.saddAsync(this.getIndexKeyName(name, indexName, value), entity[primary]);
+                    await this.client.sadd(this.getIndexKeyName(name, indexName, value), entity[primary]);
                 }
             }
         }
 
         if (canBeListed && persistedEntity === null) {
-            await this.client.rpushAsync(this.getListKeyName(name), entity[primary]);
+            await this.client.rpush(this.getListKeyName(name), entity[primary]);
         }
 
         return null;
@@ -140,7 +150,7 @@ export class Redisk {
         const { name } = this.metadata.getEntityMetadataFromType(entityType);
         const keyName = this.getListKeyName(name);
 
-        return await this.client.llenAsync(keyName);
+        return await this.client.llen(keyName);
     }
 
     async list<T>(entityType: Type<T>, limit?: number, offset?: number, orderBy?: OrderBy): Promise<T[]> {
@@ -203,11 +213,11 @@ export class Redisk {
         let finishedScanning = false;
         let cursor = 0;
         while (!finishedScanning) {
-            const scanResponse = (await this.client.sscanAsync(key, cursor, 'MATCH', value));
-            cursor = Number(scanResponse[0]);
+            const scanResponse = (await this.client.sscan(key, cursor, value));
+            cursor = scanResponse.cursor;
 
             response.push(
-                ...scanResponse[1].map((id: string) => id.match(/.+?(?=\:_id_:)/g)[0]),
+                ...scanResponse.data.map((id: string) => id.match(/.+?(?=\:_id_:)/g)[0]),
             );
 
             if (cursor === 0 || response.length === limit) {
@@ -233,9 +243,9 @@ export class Redisk {
         }
 
         if (type === 'AND') {
-            return await this.client.sinterAsync(keyNames);
+            return await this.client.sinter(keyNames);
         } else {
-            return await this.client.sunionAsync(keyNames);
+            return await this.client.sunion(keyNames);
         }
 
     }
@@ -264,13 +274,13 @@ export class Redisk {
             
 
             if (orderBy.strategy === 'ASC') {
-                return await this.client.zrangeAsync(sortableKey, start, stop);
+                return await this.client.zrange(sortableKey, start, stop);
             } else {
-                return await this.client.zrevrangeAsync(sortableKey, start, stop);
+                return await this.client.zrevrange(sortableKey, start, stop);
             }
         }
 
-        return await this.client.lrangeAsync(keyName, start, stop);
+        return await this.client.lrange(keyName, start, stop);
     }
 
     async delete<T>(entityType: Type<T>, id: string): Promise<void> {
@@ -286,13 +296,13 @@ export class Redisk {
         }
 
         if (canBeListed) {
-            await this.client.lremAsync(this.getListKeyName(name), 1, id);
+            await this.client.lrem(this.getListKeyName(name), 1, id);
         }
 
         await this.dropSortables(persistedEntity);
         await this.dropSearchables(persistedEntity);
 
-        await this.client.delAsync(hashKey);
+        await this.client.del(hashKey);
     }
 
     async getOne<T>(entityType: Type<T>, value: any, key?: string): Promise<T> {
@@ -312,14 +322,14 @@ export class Redisk {
             if (indexKey === undefined) {
                 throw new Error(key + ' is not an unique field!');
             }
-            id = await this.client.getAsync(indexKey + ':' + valueAsString);
+            id = await this.client.get(indexKey + ':' + valueAsString);
         } else {
             id = valueAsString;
         }
 
         const hashKey = name + ':' + id;
 
-        const result = await this.client.hmgetAsync(hashKey, properties.map((property: PropertyMetadata) => property.name));
+        const result = await this.client.hmget(hashKey, properties.map((property: PropertyMetadata) => property.name));
         let index = 0;
         for (const resultKey of result) {
             if (hasOneRelations !== undefined && hasOneRelations[properties[index].name] && resultKey !== null) {
@@ -363,7 +373,7 @@ export class Redisk {
     private async dropUniqueKeys<T>(entity: T): Promise<void> {
         const { name, uniques } = this.metadata.getEntityMetadataFromInstance(entity);
         for (const uniqueName of uniques) {
-            await this.client.delAsync(this.getUniqueKeyName(name, uniqueName) + ':' + entity[uniqueName]);
+            await this.client.del(this.getUniqueKeyName(name, uniqueName) + ':' + entity[uniqueName]);
         }
     }
 
@@ -376,7 +386,7 @@ export class Redisk {
                     const relatedEntity = this.metadata.getEntityMetadataFromName(hasOneRelations[indexName].entity);
                     value = entity[indexName][relatedEntity.primary];
                 }
-                await this.client.sremAsync(this.getIndexKeyName(name, indexName, value), id);
+                await this.client.srem(this.getIndexKeyName(name, indexName, value), id);
             }
         }
     }
@@ -385,7 +395,7 @@ export class Redisk {
         const { name, properties, primary } = this.metadata.getEntityMetadataFromInstance(entity);
         for (const property of properties) {
             if (property.searchable === true) {
-                await this.client.sremAsync(
+                await this.client.srem(
                     this.getSearchableKeyName(name, property.name),
                     this.getSearchableValuePrefix(entity[primary]) + entity[property.name].toLowerCase(),
                 );
@@ -397,7 +407,7 @@ export class Redisk {
         const { name, properties, primary } = this.metadata.getEntityMetadataFromInstance(entity);
         for (const property of properties) {
             if (property.sortable === true) {
-                await this.client.zremAsync(
+                await this.client.zrem(
                     this.getSortableKeyName(name, property.name),
                     entity[primary],
                 );

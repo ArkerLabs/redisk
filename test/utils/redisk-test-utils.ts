@@ -6,20 +6,18 @@ export class RediskTestUtils {
 
     private redisURL = 'redis://127.0.0.1:6379/12';
 
-    public connection;
     public redisk: Redisk;
 
 
     async beforeAll() {
-        this.connection = redis.createClient({url: this.redisURL});
-        this.redisk = new Redisk(new Metadata(), this.connection);
+        this.redisk = Redisk.init({url: this.redisURL});
     }
 
     async afterEach() {
-        await this.connection.flushdbAsync();
+        await this.redisk.getClient().flushdb();
     }
 
     async afterAll() {
-        await this.connection.end(false);
+        await this.redisk.close();
     }
 }
