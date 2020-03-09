@@ -106,7 +106,7 @@ await redisk.close();
 
 ### Model definition
 ```ts
-@Entity('user', { canBeListed: true })
+@Entity('user')
 export class User {
 
   @Primary()
