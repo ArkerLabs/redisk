@@ -225,7 +225,7 @@ export class User {
 ### Embedding other entities
 You can make one to one relations with the `HasOne` decorator.
 
-Cascade inserts and updates are supported.
+Cascade inserts and updates are supported. (These options are false by default)
 
 ```ts
 @Entity('user')
