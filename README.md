@@ -86,7 +86,7 @@ npm install redisk --save
 const redisk = Redisk.init(options);
 ```
 
-### `options`
+### Options
 | Property | Description                                                                                                                             |
 |----------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | url      | URL of the Redis server. Format [redis[s]:]//[[user][:password@]][host][:port][/db-number][?db=db-number[&password=bar[&option=value]]] |
