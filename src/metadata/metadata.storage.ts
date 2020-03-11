@@ -5,7 +5,6 @@ export class MetadataStorage {
     static global: StateMetadata = {
         names: {},
         canBeListed: {},
-        indexes: {},
         uniques: {},
         properties: {},
         primary: {},

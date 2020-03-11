@@ -13,6 +13,6 @@
       "rootDir": "./src",
       "skipLibCheck": true
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "src/**/*.lua"],
     "exclude": ["node_modules", "**/*.spec.ts"]
 }

@@ -37,6 +37,7 @@
   "homepage": "https://github.com/ArkerLabs/redisk#readme",
   "devDependencies": {
     "@types/jest": "^24.9.1",
+    "@types/node": "^13.9.0",
     "jest": "^25.1.0",
     "ts-jest": "^25.0.0",
     "typescript": "^3.7.5"

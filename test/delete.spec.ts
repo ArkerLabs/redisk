@@ -33,11 +33,11 @@ describe('Delete', () => {
 
         expect(await utils.redisk.getClient().lrange('user:list', 0, -1)).toEqual([ users[1].id, users[2].id ]);
 
-        expect(await utils.redisk.getClient().sinter('user:index:color:' + users[0].color)).toEqual([]);
-        expect(await utils.redisk.getClient().sinter('user:index:food:' + users[0].food)).toEqual([ users[2].id ]);
-        expect(await utils.redisk.getClient().sinter('user:index:group:' + groups[0].id)).toEqual([ users[1].id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:color:' + users[0].color, 0, -1)).toEqual([]);
+        expect(await utils.redisk.getClient().zrange('user:index:food:' + users[0].food, 0, -1)).toEqual([ users[2].id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:group:' + groups[0].id, 0, -1)).toEqual([ users[1].id ]);
 
-        expect(await utils.redisk.getClient().zrange('user:sort:created', 0, -1)).toEqual([ users[1].id, users[2].id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:created', 0, -1)).toEqual([ users[1].id, users[2].id ]);
 
         expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
             [ users[2].id + ':_id_:' + users[2].name.toLowerCase(), users[1].id + ':_id_:' + users[1].name.toLowerCase() ]
