@@ -1,7 +1,7 @@
 import { RediskTestUtils } from './utils/redisk-test-utils';
 import { users } from './fixtures/users';
-import { User } from './models/user.model';
-import { Group } from './models/group.model';
+import { User } from './entities/user.entity';
+import { Group } from './entities/group.entity';
 
 let utils: RediskTestUtils; 
 

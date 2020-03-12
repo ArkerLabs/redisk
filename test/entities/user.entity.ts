@@ -3,7 +3,7 @@ import { Primary } from '../../src/decorators/primary.decorator';
 import { Property } from '../../src/decorators/property.decorator';
 import { Unique } from '../../src/decorators/unique.decorator';
 import { HasOne } from '../../src/decorators/hasone.decorator';
-import { Group } from './group.model';
+import { Group } from './group.entity';
 
 
 @Entity('user', { canBeListed: true })
