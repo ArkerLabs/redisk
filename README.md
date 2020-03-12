@@ -263,18 +263,24 @@ await redisk.count(User);
 ```
 
 ### List all
-
+Returns an array of all user entities.
 ```ts
-await redisk.list(User); // Returns an array of entities
+await redisk.list(User); 
+```
 
+Returns the first 10 user entities
+```ts
 const limit = 10;
 const offset = 0;
-await redis.list(User, limit, offset); // Returns 10 user entities
+await redis.list(User, limit, offset);
+```
 
+Return an array of user entities sorted by his creation date in descending order
+```ts
 await redisk.list(User, undefined, undefined, undefined, {
     field: 'created',
     strategy: 'DESC',
-}); // Returns an array of entities sorted by his creation date in descending order
+});
 ```
 
 ### List all with conditions
