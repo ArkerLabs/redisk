@@ -313,7 +313,7 @@ await redisk.find(User, where, limit, offset);
 #### Multiple conditions
 Returns an array of entities that his color field is 'red' or 'blue'.
 
-Warning: When using multiple conditions...
+Warning: Using multiple conditions leads to multiple queries with table intersections, to achieve high performance queries try to reduce the results with more concise conditional.
 
 ```ts
 const where = 
