@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/arkerlabs/redisk/master/docs/images/logo.png" alt="Redisk">
+  <img src="https://raw.githubusercontent.com/ArkerLabs/redisk/master/docs/images/logo.png" alt="Redisk">
 </h1>
 
 [![npm version](https://badge.fury.io/js/redisk.svg)](https://badge.fury.io/js/redisk)
