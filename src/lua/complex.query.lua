@@ -43,19 +43,24 @@ local function tableWithSameValues(t1, t2)
     return t3
 end
 
-local function tableDiffs(t1, t2)
+local function tableRemoveElements(t1, t2)
     for key, value in pairs(t1) do
-        if t2[value] == nil then
+        if t2[key] ~= nil then
             t1[key] = nil
         end
     end
     return t1
 end
 
-local function intersect(type, ids, newIds)
+local function intersect(type, ids, newIds, notEqual)
     if next(ids) == nil then
         return newIds;
     end
+
+    if notEqual then
+        newIds = tableRemoveElements(ids, newIds)
+    end
+
     if type == 'OR' then
         return tableConcat(ids, newIds)
     else
@@ -81,25 +86,42 @@ logit(cjson.encode(request))
 
 local ids = {}
 
-if request.orderBy then
-    if request.orderBy.strategy == "DESC" then
-        ids = redis.call("ZREVRANGEBYSCORE", request.prefix .. request.orderBy.name, request.orderBy.max, request.orderBy.min, "LIMIT", 0, -1)
-    else
+local notEqualCondition = false;
+
+for key,value in ipairs(request.equals) do
+    if value.comparator == "!=" then
+        notEqualCondition = true
+    end
+end
+
+if request.orderBy or notEqualCondition then
+    if notEqualCondition then
+        ids = redis.call("LRANGE", request.listKey, 0, -1)
+    elseif request.orderBy.strategy == "ASC" then
         ids = redis.call("ZRANGEBYSCORE", request.prefix .. request.orderBy.name, request.orderBy.min, request.orderBy.max, "LIMIT", 0, -1)
+    else
+        ids = redis.call("ZREVRANGEBYSCORE", request.prefix .. request.orderBy.name, request.orderBy.max, request.orderBy.min, "LIMIT", 0, -1)
     end
     ids = convertToTable(ids)
 end
 
 for key,value in ipairs(request.scores) do
     local tempIds = redis.call("ZRANGEBYSCORE", request.prefix .. value.key, value.min, value.max, "LIMIT", 0, -1)
-    ids = intersect(request.type, ids, convertToTable(tempIds))
+    ids = intersect(request.type, ids, convertToTable(tempIds), false)
 end
 
 for key,value in ipairs(request.equals) do
     local tempIds = redis.call("ZRANGEBYSCORE", request.prefix .. value.key .. ":" .. value.value, "-inf", "+inf", "LIMIT", 0, -1)
-    ids = intersect(request.type, ids, convertToTable(tempIds))
+    local notEqual = false
+    if value.comparator == "!=" then
+        notEqual = true
+    end
+    ids = intersect(request.type, ids, convertToTable(tempIds), notEqual)
 end
-logit(cjson.encode(ids))
+
+local response = extractWithLimitAndOffset(tableKeysToArray(ids), request.limit, request.offset)
+
+logit(cjson.encode(response))
 
 --return logtable
-return extractWithLimitAndOffset(tableKeysToArray(ids), request.limit, request.offset)
+return response

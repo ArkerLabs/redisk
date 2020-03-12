@@ -318,3 +318,45 @@ describe('List with order by and condition', () => {
         )).toEqual([users[3]]);
     });
 });
+
+describe('List with order by and condition not equal', () => {
+    it('should return filteres entities', async () => {
+        expect(await utils.redisk.list(
+            User,
+            {
+                conditions: [
+                    {
+                        key: 'food',
+                        value: 'tofu',
+                        comparator: '!='
+                    },
+                ],
+                type: 'AND'
+            },
+            1,
+            0,
+            {
+                field: 'created',
+                strategy: 'DESC'
+            },
+        )).toEqual([users[4]]);
+    });
+});
+
+describe('List with condition not equal', () => {
+    it('should return filteres entities', async () => {
+        expect(await utils.redisk.list(
+            User,
+            {
+                conditions: [
+                    {
+                        key: 'food',
+                        value: 'tofu',
+                        comparator: '!='
+                    },
+                ],
+                type: 'AND'
+            },
+        )).toEqual([users[4], users[1]]);
+    });
+});

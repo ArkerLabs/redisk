@@ -294,7 +294,7 @@ export class Redisk {
                 );
             }
 
-            if (equals.length === 1 && Object.keys(scores).length === 0 && orderBy === undefined) {
+            if (equals.length === 1 && Object.keys(scores).length === 0 && orderBy === undefined && equals[0].comparator != "!=") {
                 const condition = equals[0];
                 return await this.client.zrange(
                     this.getIndexKeyName(name, condition.key, this.convertPropertyTypeToPrimitive(properties[condition.key], condition.value)),
@@ -333,6 +333,7 @@ export class Redisk {
 
             let luaArgs = {
                 prefix: this.getIndexPrefix(name),
+                listKey: this.getListKeyName(name),
                 tempPrefix: 'temp:' + name + ':',
                 orderBy: luaOrderBy,
                 scores: Object.keys(scores).map((key: string) => ({
