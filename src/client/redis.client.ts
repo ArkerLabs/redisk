@@ -81,6 +81,10 @@ export class RedisClient implements Client {
         return await this.client.sunionAsync(keys);
     }
 
+    async zrangebyscore(key: string, min: string, max: string, offset: number, count: number): Promise<string[]> {
+        return await this.client.zrangebyscoreAsync(key, min, max, 'LIMIT', offset, count);
+    }
+
     async zrange(key: string, start: number, stop: number): Promise<string[]> {
         return await this.client.zrangeAsync(key, start, stop);
     }
@@ -107,5 +111,9 @@ export class RedisClient implements Client {
 
     async hmget(key: string, properties: string[]): Promise<string[]> {
         return await this.client.hmgetAsync(key, properties);
+    }
+
+    async eval(...args: any[]): Promise<any[]> {
+        return await this.client.evalAsync(args);
     }
 }

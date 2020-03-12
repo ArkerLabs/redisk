@@ -16,10 +16,12 @@ export interface Client {
     sinter(keys: string[] | string): Promise<string[]>;
     sunion(keys: string[]): Promise<string[]>;
     zrange(key: string, start: number, stop: number): Promise<string[]>;
+    zrangebyscore(key: string, min: string, max: string, offset: number, count: number): Promise<string[]>;
     zrevrange(key: string, start: number, stop: number): Promise<string[]>;
     lrange(key: string, start: number, stop: number): Promise<string[]>;
     lrem(key: string, count: number, element: string): Promise<void>;
     del(key: string): Promise<void>;
     get(key: string): Promise<string>;
     hmget(key: string, properties: string[]): Promise<string[]>;
+    eval(...args: any[]): Promise<any[]>;
 }

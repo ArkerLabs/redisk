@@ -1,5 +1,7 @@
-Redisk
-=====
+<h1 align="center">
+  <img src="https://raw.githubusercontent.com/arkerlabs/redisk/master/docs/images/logo.png" alt="Redisk">
+</h1>
+
 [![npm version](https://badge.fury.io/js/redisk.svg)](https://badge.fury.io/js/redisk)
 
 Redisk is a TypeScript ORM library for Redis.
@@ -13,7 +15,7 @@ Redisk is a TypeScript ORM library for Redis.
 * Retrieve entities by his primary keys or his unique keys.
 * Indexes support.
 * List entities with common filters, like limit, count and sort by.
-* Find entities with multiple conditions.
+* Find entities with multiple conditions ('>', '<', '=', '!=').
 * Search (Similar to LIKE in SQL)
 * And much more.
 
@@ -64,7 +66,6 @@ npm install redisk --save
     - [Supported types](#supported-types)
   - [Primary](#primary)
   - [Unique](#unique)
-  - [Index](#index)
   - [Embedding other entities](#embedding-other-entities)
 - [Queries](#queries)
   - [Save](#save)
@@ -73,7 +74,7 @@ npm install redisk --save
   - [Get by unique key](#get-by-unique-key)
   - [Count](#count)
   - [List all](#list-all)
-  - [Find all by index](#find-all-by-index)
+  - [List all with conditions](#find-all-by-index)
     - [Simple](#simple)
     - [Multiple conditions](#multiple-conditions)
   - [Pattern matching](#pattern-matching)
@@ -113,22 +114,21 @@ export class User {
   @Property()
   public readonly id: string;
 
-  @Property({sortable: false, searchable: true})
+  @Property({searchable: true})
   public name: string;
 
   @Unique()
   @Property()
   public email: string;
 
-  @Index()
-  @Property()
+  @Property({indexed: true})
   public color: string;
 
   @HasOne(Group, {cascadeInsert: true, cascadeUpdate: true})
   @Property()
   public group: Group;
 
-  @Property({sortable: true, searchable: false})
+  @Property({indexed: true})
   public created: Date;
 
   constructor(
@@ -162,7 +162,8 @@ export class User {
 
 ### Property
 The decorator `Property` is used to save the fields into redis.
-Optionally, you can pass the options `sortable` if you want to use the field to sort in the 'list' method or `searchable` if you want to use pattern matching in this field.
+
+Optionally, you can pass the options `indexed` if you want to use the field to sort or to use as a condition in the 'list' method or `searchable` if you want to use pattern matching in this field.
 
 Both options are false by default.
 
@@ -170,7 +171,7 @@ Both options are false by default.
 @Entity('user')
 export class User {
 
-    @Property({sortable: true, searchable: false})
+    @Property({indexed: true, searchable: false})
     public readonly created: Date;
 
 }
@@ -207,18 +208,6 @@ export class User {
   @Unique()
   @Property()
   public readonly email: string;
-}
-```
-
-### Index
-Use the decorator `Index` on the fields that you want to query later with the find() method.
-```ts
-@Entity('user')
-export class User {
-
-  @Index()
-  @Property()
-  public readonly color: string;
 }
 ```
 
@@ -282,50 +271,87 @@ const limit = 10;
 const offset = 0;
 await redis.list(User, limit, offset); // Returns 10 user entities
 
-await redisk.list(User, undefined, undefined, {
+await redisk.list(User, undefined, undefined, undefined, {
     field: 'created',
     strategy: 'DESC',
 }); // Returns an array of entities sorted by his creation date in descending order
 ```
 
-### Find all by index
+### List all with conditions
 #### Simple
+Returns an array of users where his color is red
+
 ```ts
-const conditions = [
-    {
-        key: 'color',
-        value: 'red',
-    },
-];
-await redisk.find(User, conditions, limit, offset); // Returns an array of entities that match the conditions
+const where = 
+    conditions: [
+        {
+            key: 'color',
+            value: 'red',
+            comparator: '=',
+        },
+    ],
+    type: 'AND',
+};
+await redisk.find(User, where, limit, offset); 
+```
+
+Returns an array of users where his creation date is greater than the day 23
+```ts
+const where = 
+    conditions: [
+        {
+            key: 'created',
+            value: new Date('2020-02-23 00:00:00'),
+            comparator: '>',
+        },
+    ],
+    type: 'AND',
+};
+await redisk.find(User, where, limit, offset); 
 ```
 
 #### Multiple conditions
+Returns an array of entities that his color field is 'red' or 'blue'.
+
+Warning: When using multiple conditions...
+
 ```ts
-const conditions = [
-    {
-        key: 'color',
-        value: 'red',
-    },
-    {
-        key: 'color',
-        value: 'blue',
-    },
-];
-await redisk.find(User, conditions, limit, offset, 'OR'); // Returns an array of entities that his color field is 'red' or 'blue'
+const where = 
+    conditions: [
+        {
+            key: 'color',
+            value: 'red',
+            comparator: '=',
+        },
+        {
+            key: 'color',
+            value: 'blue',
+            comparator: '=',
+        },
+    ],
+    type: 'OR',
+};
+await redisk.find(User, where, limit, offset);
 ```
+
+Returns an array of entities that his color field is 'red' and his food field is 'avocado'
 ```ts
-const conditions = [
-    {
-        key: 'color',
-        value: 'red',
-    },
-    {
-        key: 'food',
-        value: 'avocado',
-    },
-];
-await redisk.find(User, conditions, limit, offset, 'AND'); // Returns an array of entities that his color field is 'red' and his food field is 'avocado'
+const where = 
+    conditions: [
+        {
+            key: 'color',
+            value: 'red',
+            comparator: '=',
+        },
+        {
+            key: 'color',
+            value: 'blue',
+            comparator: '=',
+        },
+    ],
+    type: 'AND',
+};
+await redisk.find(User, where, limit, offset);
 ```
 
 ### Pattern matching

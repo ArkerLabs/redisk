@@ -1,7 +1,7 @@
 import { RediskTestUtils } from './utils/redisk-test-utils';
 import { users } from './fixtures/users';
-import { User } from './models/user.model';
-import { Group } from './models/group.model';
+import { User } from './entities/user.entity';
+import { Group } from './entities/group.entity';
 
 let utils: RediskTestUtils; 
 
@@ -56,10 +56,10 @@ describe('Save with cascade insert', () => {
 
         expect(await utils.redisk.getClient().lrange('user:list', 0, -1)).toEqual([ users[0].id, id ]);
 
-        expect(await utils.redisk.getClient().sinter('user:index:color:' + color)).toEqual([ users[0].id, id ]);
-        expect(await utils.redisk.getClient().sinter('user:index:food:' + food)).toEqual([ id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:color:' + color, 0, -1)).toEqual([ users[0].id, id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:food:' + food, 0, -1)).toEqual([ id ]);
 
-        expect(await utils.redisk.getClient().zrange('user:sort:created', 0, -1)).toEqual([ id, users[0].id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:created', 0, -1)).toEqual([ id, users[0].id ]);
 
         expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
             [  users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + name.toLowerCase() ]
@@ -118,11 +118,11 @@ describe('Update persisted entity with cascade update', () => {
 
         expect(await utils.redisk.getClient().lrange('user:list', 0, -1)).toEqual([ users[0].id, id ]);
 
-        expect(await utils.redisk.getClient().sinter('user:index:color:' + color)).toEqual([ users[0].id ]);
-        expect(await utils.redisk.getClient().sinter('user:index:color:' + newColor)).toEqual([ id ]);
-        expect(await utils.redisk.getClient().sinter('user:index:food:' + food)).toEqual([ id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:color:' + color, 0, -1)).toEqual([ users[0].id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:color:' + newColor, 0, -1)).toEqual([ id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:food:' + food, 0, -1)).toEqual([ id ]);
 
-        expect(await utils.redisk.getClient().zrange('user:sort:created', 0, -1)).toEqual([ users[0].id, id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:created', 0, -1)).toEqual([ users[0].id, id ]);
 
         expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
             [ users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + newName.toLowerCase() ]
@@ -156,11 +156,11 @@ describe('Update persisted entity', () => {
 
         expect(await utils.redisk.getClient().lrange('user:list', 0, -1)).toEqual([ users[0].id, id ]);
 
-        expect(await utils.redisk.getClient().sinter('user:index:color:' + color)).toEqual([ users[0].id ]);
-        expect(await utils.redisk.getClient().sinter('user:index:color:' + newColor)).toEqual([ id ]);
-        expect(await utils.redisk.getClient().sinter('user:index:food:' + food)).toEqual([ id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:color:' + color, 0, -1)).toEqual([ users[0].id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:color:' + newColor, 0, -1)).toEqual([ id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:food:' + food, 0, -1)).toEqual([ id ]);
 
-        expect(await utils.redisk.getClient().zrange('user:sort:created', 0, -1)).toEqual([ users[0].id, id ]);
+        expect(await utils.redisk.getClient().zrange('user:index:created', 0, -1)).toEqual([ users[0].id, id ]);
 
         expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
             [ users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + newName.toLowerCase() ]

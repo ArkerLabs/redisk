@@ -1,4 +1,4 @@
-import { User } from '../models/user.model';
+import { User } from '../entities/user.entity';
 import { groups } from './groups';
 
 export const users = [
