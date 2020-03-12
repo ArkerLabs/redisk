@@ -298,7 +298,7 @@ const where =
     ],
     type: 'AND',
 };
-await redisk.find(User, where, limit, offset); 
+await redisk.list(User, where, limit, offset); 
 ```
 
 Returns an array of users where his creation date is greater than the day 23
@@ -313,7 +313,7 @@ const where =
     ],
     type: 'AND',
 };
-await redisk.find(User, where, limit, offset); 
+await redisk.list(User, where, limit, offset); 
 ```
 
 #### Multiple conditions
@@ -337,7 +337,7 @@ const where =
     ],
     type: 'OR',
 };
-await redisk.find(User, where, limit, offset);
+await redisk.list(User, where, limit, offset);
 ```
 
 Returns an array of entities that his color field is 'red' and his food field is 'avocado'
@@ -350,14 +350,14 @@ const where =
             comparator: '=',
         },
         {
-            key: 'color',
-            value: 'blue',
+            key: 'food',
+            value: 'avocado',
             comparator: '=',
         },
     ],
     type: 'AND',
 };
-await redisk.find(User, where, limit, offset);
+await redisk.list(User, where, limit, offset);
 ```
 
 ### Pattern matching
