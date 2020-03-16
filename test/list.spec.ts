@@ -62,7 +62,23 @@ describe('List with order by desc', () => {
     });
 });
 
-
+describe('List with has one conditions', () => {
+    it('should return filtered entities', async () => {
+        expect((await utils.redisk.list(
+            User,
+            {
+                conditions: [
+                    {
+                        key: 'group',
+                        value: groups[1].id,
+                        comparator: '=',
+                    },
+                ],
+                type: 'AND',
+            },
+        ))).toEqual([users[3], users[4]]);
+    });
+});
 
 describe('List with one condition', () => {
     it('should return filtered persisted entities', async () => {
