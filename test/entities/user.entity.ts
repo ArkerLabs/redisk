@@ -26,7 +26,7 @@ export class User {
   @Property({indexed: true})
   public readonly food: string;
 
-  @HasOne(Group, {cascadeInsert: true, cascadeUpdate: true})
+  @HasOne(() => Group, {cascadeInsert: true, cascadeUpdate: true})
   @Property({indexed: true})
   public readonly group: Group;
 

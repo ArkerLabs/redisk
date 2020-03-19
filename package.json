@@ -1,6 +1,6 @@
 {
   "name": "redisk",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "TypeScript ORM for Redis.",
   "main": "index.js",
   "directories": {

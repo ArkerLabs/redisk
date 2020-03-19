@@ -7,7 +7,13 @@ export function Property(options: {searchable?: boolean, indexed?: boolean} = {
 // tslint:disable-next-line: ban-types
 }): Function {
     return (object: object, propertyName: string) => {
-        const type = Reflect.getMetadata('design:type', object, propertyName).name;
+
+        const reflectType = Reflect.getMetadata('design:type', object, propertyName);
+
+        let type = 'string';
+        if (reflectType !== undefined) {
+            type = reflectType.name;
+        }
 
         if (MetadataStorage.getGlobal().properties[object.constructor.name] === undefined) {
             MetadataStorage.getGlobal().properties[object.constructor.name] = {};

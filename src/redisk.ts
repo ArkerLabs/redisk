@@ -94,7 +94,7 @@ export class Redisk {
                 let valueToStore = this.convertPropertyTypeToPrimitive(property, entity[property.name]);
 
                 if (hasOneRelations !== undefined && hasOneRelations[property.name]) {
-                    const relatedEntity = this.metadata.getEntityMetadataFromName(hasOneRelations[property.name].entity);
+                    const relatedEntity = this.metadata.getEntityMetadataFromName(hasOneRelations[property.name].entityType().name);
                     valueToStore = entity[property.name][relatedEntity.primary];
 
                     if (hasOneRelations[property.name].cascadeInsert && persistedEntity === null && entity[property.name] !== null) {
@@ -115,7 +115,7 @@ export class Redisk {
                 if (property.indexed) {
                     let value = entity[property.name];
                     if (hasOneRelations !== undefined && hasOneRelations[property.name] && entity[property.name] !== null) {
-                        const relatedEntity = this.metadata.getEntityMetadataFromName(hasOneRelations[property.name].entity);
+                        const relatedEntity = this.metadata.getEntityMetadataFromName(hasOneRelations[property.name].entityType().name);
                         value = entity[property.name][relatedEntity.primary];
                     }
                     if (value !== null) {
@@ -407,7 +407,7 @@ export class Redisk {
         let index = 0;
         for (const resultKey of result) {
             if (hasOneRelations !== undefined && hasOneRelations[propertiesArray[index].name] && resultKey !== null) {
-                entity[propertiesArray[index].name] = await this.getOne(hasOneRelations[propertiesArray[index].name].entityType as any, resultKey);
+                entity[propertiesArray[index].name] = await this.getOne(hasOneRelations[propertiesArray[index].name].entityType() as any, resultKey);
             } else {
                 entity[propertiesArray[index].name] = this.convertStringToPropertyType(propertiesArray[index], resultKey);
             }
@@ -463,7 +463,7 @@ export class Redisk {
         const { name, hasOneRelations } = this.metadata.getEntityMetadataFromInstance(entity);
         let value = entity[property.name];
         if (hasOneRelations !== undefined && hasOneRelations[property.name]) {
-            const relatedEntity = this.metadata.getEntityMetadataFromName(hasOneRelations[property.name].entity);
+            const relatedEntity = this.metadata.getEntityMetadataFromName(hasOneRelations[property.name].entityType().name);
             value = entity[property.name][relatedEntity.primary];
         }
         if (property.type === 'Date' || property.type === 'Number') {
