@@ -79,6 +79,7 @@ npm install redisk --save
     - [Multiple conditions](#multiple-conditions)
   - [Pattern matching](#pattern-matching)
   - [Delete](#delete)
+- [Logging](#logging)
 
 
 ## Connection
@@ -377,4 +378,14 @@ await redisk.search(User, condition, maxNumberOfResults);
 
 ```ts
 await redisk.delete(User, id);
+```
+
+## Logging
+
+We use [winston](https://github.com/winstonjs/winston) for logging, if you want to see more info, like redis command that are being executed you can set process.env.REDISK_LOG_LEVEL to 'info'.
+
+For example:
+
+```bash
+REDISK_LOG_LEVEL=info npm test
 ```
