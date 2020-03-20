@@ -8,6 +8,7 @@ import { WhereCondition } from './interfaces/where-condition';
 import * as fs from 'fs';
 import * as path from 'path';
 import logger from './logger/logger';
+import { LoggerClient } from './client/logger.client';
 
 export class Redisk {
 
@@ -18,8 +19,8 @@ export class Redisk {
     }
 
     static init(options: ClientOptions) {
-        logger.info("Starting redisk...")
-        return new Redisk(new Metadata(), new RedisClient(options));
+        logger.info('Starting Redisk with default constructor...');
+        return new Redisk(new Metadata(), new LoggerClient(new RedisClient(options)));
     }
 
     async close() {
