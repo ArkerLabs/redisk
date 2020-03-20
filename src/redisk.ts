@@ -53,7 +53,7 @@ export class Redisk {
                         await this.save(entity[property.name]);
                     }
 
-                    if (property.searchable) {
+                    if (property.searchable && persistedEntity[property.name]) {
                         await this.client.srem(
                             this.getSearchableKeyName(name, property.name),
                             this.getSearchableValuePrefix(entity[primary]) + persistedEntity[property.name].toLowerCase(),
@@ -108,7 +108,7 @@ export class Redisk {
                 valuesToStore.push(property.name);
                 valuesToStore.push(valueToStore);
                 
-                if (property.searchable) {
+                if (property.searchable && entity[property.name]) {
                     await this.client.sadd(
                         this.getSearchableKeyName(name, property.name),
                         this.getSearchableValuePrefix(entity[primary]) + entity[property.name].toLowerCase(),
@@ -479,7 +479,7 @@ export class Redisk {
     private async dropSearchables<T>(entity: T): Promise<void> {
         const { name, properties, primary } = this.metadata.getEntityMetadataFromInstance(entity);
         for (const property of Object.keys(properties).map(key => properties[key])) {
-            if (property.searchable) {
+            if (property.searchable && entity[property.name]) {
                 await this.client.srem(
                     this.getSearchableKeyName(name, property.name),
                     this.getSearchableValuePrefix(entity[primary]) + entity[property.name].toLowerCase(),
