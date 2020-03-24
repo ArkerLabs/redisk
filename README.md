@@ -389,3 +389,7 @@ For example:
 ```bash
 REDISK_LOG_LEVEL=info npm test
 ```
+
+## Stay in touch
+- Author - [Nytyr](https://keybase.io/nytyr)
+- Website - [https://arkerlabs.com/](https://arkerlabs.com/)
