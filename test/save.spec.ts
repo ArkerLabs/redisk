@@ -61,8 +61,8 @@ describe('Save with cascade insert', () => {
 
         expect(await utils.redisk.getClient().zrange('user:index:created', 0, -1)).toEqual([ id, users[0].id ]);
 
-        expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
-            [  users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + name.toLowerCase() ]
+        expect((await utils.redisk.getClient().smembers('user:search:name')).sort((a, b) => a.localeCompare(b))).toEqual(
+            [  users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + name.toLowerCase() ].sort((a, b) => a.localeCompare(b))
         );
     });
 });
@@ -124,8 +124,8 @@ describe('Update persisted entity with cascade update', () => {
 
         expect(await utils.redisk.getClient().zrange('user:index:created', 0, -1)).toEqual([ users[0].id, id ]);
 
-        expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
-            [ users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + newName.toLowerCase() ]
+        expect((await utils.redisk.getClient().smembers('user:search:name')).sort((a, b) => a.localeCompare(b))).toEqual(
+            [ users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + newName.toLowerCase() ].sort((a, b) => a.localeCompare(b))
         );
     });
 });
@@ -162,8 +162,8 @@ describe('Update persisted entity', () => {
 
         expect(await utils.redisk.getClient().zrange('user:index:created', 0, -1)).toEqual([ users[0].id, id ]);
 
-        expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
-            [ users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + newName.toLowerCase() ]
-        );
+        const receivedSearch = (await utils.redisk.getClient().smembers('user:search:name')).sort((a, b) => a.localeCompare(b));
+        const expectedSearch = [ users[0].id + ':_id_:' + users[0].name.toLowerCase(), id + ':_id_:' + newName.toLowerCase() ].sort((a, b) => a.localeCompare(b));
+        expect(receivedSearch).toEqual(expectedSearch);
     });
 });
