@@ -2,7 +2,8 @@
   <img src="https://raw.githubusercontent.com/ArkerLabs/redisk/master/docs/images/logo.png" alt="Redisk">
 </h1>
 
-[![npm version](https://badge.fury.io/js/redisk.svg)](https://badge.fury.io/js/redisk)
+[![npm version](https://badge.fury.io/js/redisk.svg)](https://badge.fury.io/js/redisk) 
+![Redisk CI](https://github.com/ArkerLabs/redisk/workflows/Redisk%20CI/badge.svg)
 
 Redisk is a TypeScript ORM library for Redis.
 
