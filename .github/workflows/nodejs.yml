@@ -25,10 +25,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Start Redis
-      uses: superchargejs/redis-github-action@v1
+    - name: Use redis
+      uses: zhulik/redis-action@1.1.0
       with:
-        redis-version: ${{ matrix.redis-version }}
+        redis version: '5'
+        number of databases: 15
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
