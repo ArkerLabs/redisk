@@ -39,8 +39,8 @@ describe('Delete', () => {
 
         expect(await utils.redisk.getClient().zrange('user:index:created', 0, -1)).toEqual([ users[1].id, users[2].id ]);
 
-        expect(await utils.redisk.getClient().smembers('user:search:name')).toEqual(
-            [ users[2].id + ':_id_:' + users[2].name.toLowerCase(), users[1].id + ':_id_:' + users[1].name.toLowerCase() ]
+        expect((await utils.redisk.getClient().smembers('user:search:name')).sort((a, b) => a.localeCompare(b))).toEqual(
+            [ users[2].id + ':_id_:' + users[2].name.toLowerCase(), users[1].id + ':_id_:' + users[1].name.toLowerCase() ].sort((a, b) => a.localeCompare(b))
         );
     });
 });

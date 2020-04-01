@@ -27,13 +27,13 @@ beforeEach(async () => {
 
 describe('Search', () => {
     it('should return filtered persisted entities', async () => {
-        expect(await utils.redisk.search(
+        expect((await utils.redisk.search(
             User, 
             {
                 key: 'name',
                 value: 'j'
             },
-            2
-        )).toEqual([users[3], users[2]]);
+            3
+        )).sort((a, b) => a.id.localeCompare(b.id))).toEqual([users[0], users[3], users[2]].sort((a, b) => a.id.localeCompare(b.id)));
     });
 });
