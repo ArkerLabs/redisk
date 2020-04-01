@@ -39,9 +39,12 @@
   },
   "homepage": "https://github.com/ArkerLabs/redisk#readme",
   "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
     "@types/jest": "^24.9.1",
     "@types/node": "^13.9.0",
     "cpx": "^1.5.0",
+    "husky": "^4.2.3",
     "jest": "^25.1.0",
     "ts-jest": "^25.3.0",
     "typescript": "^3.7.5"
@@ -60,5 +63,10 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "verbose": true
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   }
 }
