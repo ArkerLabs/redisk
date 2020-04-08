@@ -126,7 +126,7 @@ export class User {
   @Property({indexed: true})
   public color: string;
 
-  @HasOne(() => Group, {cascadeInsert: true, cascadeUpdate: true})
+  @HasOne(type => Group, {cascadeInsert: true, cascadeUpdate: true})
   @Property()
   public group: Group;
 
@@ -222,7 +222,7 @@ Cascade inserts and updates are supported. (These options are false by default)
 @Entity('user')
 export class User {
 
-  @HasOne(() => Group, {cascadeInsert: true, cascadeUpdate: true})
+  @HasOne(type => Group, {cascadeInsert: true, cascadeUpdate: true})
   @Property()
   public readonly group: Group;
 }
