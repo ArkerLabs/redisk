@@ -1,6 +1,6 @@
 {
   "name": "redisk",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "TypeScript ORM for Redis.",
   "main": "index.js",
   "directories": {
@@ -13,7 +13,8 @@
     "publish:npm": "npm publish --access public",
     "prepublish:next": "npm run build",
     "publish:next": "npm publish --access public --tag next",
-    "test": "jest --no-cache --runInBand"
+    "test": "jest --no-cache --runInBand",
+    "changelog": "auto-changelog -p"
   },
   "dependencies": {
     "bluebird": "^3.7.2",
@@ -43,6 +44,7 @@
     "@commitlint/config-conventional": "^8.3.4",
     "@types/jest": "^24.9.1",
     "@types/node": "^13.9.0",
+    "auto-changelog": "^1.16.4",
     "cpx": "^1.5.0",
     "husky": "^4.2.3",
     "jest": "^25.1.0",
