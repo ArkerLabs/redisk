@@ -42,6 +42,10 @@ export class Redisk {
             const changedFields = [];
 
             for (const property of Object.keys(properties).map(key => properties[key])) {
+                if (entity[property.name] === undefined) {
+                    entity[property.name] = persistedEntity[property.name];
+                }
+
                 if (entity[property.name] !== persistedEntity[property.name]) {
                     changedFields.push(property.name);
 

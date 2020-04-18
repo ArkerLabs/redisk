@@ -243,6 +243,7 @@ const user = await redisk.getOne(User, id);
 user.name = 'Bar';
 await redisk.save(user);
 ```
+#### Note: Null fields will be removed from the persisted entity, undefined fields will not be modified from persisted entity.
 
 ### Get by primary key
 

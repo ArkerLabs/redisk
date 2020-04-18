@@ -24,6 +24,7 @@ beforeEach(async () => {
 
 const id = '__id__';
 const name = 'Anna';
+const description = 'Description';
 const email = 'anna@email.com';
 const color = 'red';
 const food = 'bread';
@@ -32,7 +33,7 @@ const group = new Group('4E2F', 'Group name');
 
 describe('Save with cascade insert', () => {
     it('should persist entity', async () => {
-        const user = new User(id, name, email, color, food, group, created);
+        const user = new User(id, name, description, email, color, food, group, created);
 
         await utils.redisk.save(user);
 
@@ -40,6 +41,7 @@ describe('Save with cascade insert', () => {
         expect(storedUser).toEqual({
             id,
             name,
+            description,
             email,
             color,
             food,
@@ -69,9 +71,9 @@ describe('Save with cascade insert', () => {
 
 describe('Save with unique in-use', () => {
     it('should throw error', async () => {
-        const user = new User(id, name, email, color, food, null, created);
+        const user = new User(id, name, description, email, color, food, null, created);
         await utils.redisk.save(user);
-        const user2 = new User('foo', name, email, color, food, null, created);
+        const user2 = new User('foo', name, description, email, color, food, null, created);
         let exception;
         try {
             await utils.redisk.save(user2);
@@ -85,7 +87,7 @@ describe('Save with unique in-use', () => {
 
 describe('Update persisted entity with cascade update', () => {
     it('should update entities', async () => {
-        const user = new User(id, name, email, color, food, group, created);
+        const user = new User(id, name, description, email, color, food, group, created);
         await utils.redisk.save(user);
 
         const newName = 'Riley';
@@ -94,13 +96,14 @@ describe('Update persisted entity with cascade update', () => {
         const newCreated = new Date('2020-03-25 12:10:04');
 
         const group2 = new Group(group.id, 'Foo');
-        const updatedUser = new User(id, newName, newEmail, newColor, food, group2, newCreated);
+        const updatedUser = new User(id, newName, description, newEmail, newColor, food, group2, newCreated);
         await utils.redisk.save(updatedUser);
 
         const storedUser = await utils.redisk.getClient().hgetall('user:' + id);
         expect(storedUser).toEqual({
             id,
             name: newName,
+            description,
             email: newEmail,
             color: newColor,
             food,
@@ -130,16 +133,41 @@ describe('Update persisted entity with cascade update', () => {
     });
 });
 
+
+describe('Update persisted entity with undefineds', () => {
+    it('should ignore those properties', async () => {
+        const newName = 'Riley';
+
+        const user = new User(id, name, description, email, color, food, group, created);
+        await utils.redisk.save(user);
+
+        await utils.redisk.save(new User(id, newName, undefined, email, color, food, group, created));
+        const storedUser = await utils.redisk.getClient().hgetall('user:' + id);
+        expect(storedUser).toEqual({
+            id,
+            name: newName,
+            description,
+            email,
+            color,
+            food,
+            group: group.id,
+            created: String(created.valueOf()),
+        });
+
+    });
+});
+
 describe('Update persisted entity', () => {
     it('should update entity', async () => {
-        const user = new User(id, name, email, color, food, group, created);
+        const user = new User(id, name, description, email, color, food, group, created);
         await utils.redisk.save(user);
 
         const newName = 'Riley';
         const newEmail = 'riley@email.com';
+        const newDescription = null;
         const newColor = 'purple';
         const newCreated = new Date('2020-03-25 12:10:04');
-        const updatedUser = new User(id, newName, newEmail, newColor, food, null, newCreated);
+        const updatedUser = new User(id, newName, newDescription, newEmail, newColor, food, null, newCreated);
         await utils.redisk.save(updatedUser);
 
         const storedUser = await utils.redisk.getClient().hgetall('user:' + id);

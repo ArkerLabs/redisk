@@ -16,6 +16,9 @@ export class User {
   @Property({searchable: true})
   public readonly name: string;
 
+  @Property()
+  public readonly description: string;
+
   @Unique()
   @Property()
   public readonly email: string;
@@ -36,6 +39,7 @@ export class User {
   constructor(
       id: string,
       name: string,
+      description: string,
       email: string,
       color: string,
       food: string,
@@ -44,6 +48,7 @@ export class User {
     ) {
       this.id = id;
       this.name = name;
+      this.description = description;
       this.email = email;
       this.color = color;
       this.food = food;
