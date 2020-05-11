@@ -469,7 +469,7 @@ export class Redisk {
     private async dropIndex<T>(entity: T, property: PropertyMetadata, id: string): Promise<void> {
         const { name, hasOneRelations } = this.metadata.getEntityMetadataFromInstance(entity);
         let value = entity[property.name];
-        if (hasOneRelations !== undefined && hasOneRelations[property.name]) {
+        if (hasOneRelations !== undefined && hasOneRelations[property.name] && entity[property.name]) {
             const relatedEntity = this.metadata.getEntityMetadataFromName(hasOneRelations[property.name].entityType().name);
             value = entity[property.name][relatedEntity.primary];
         }
