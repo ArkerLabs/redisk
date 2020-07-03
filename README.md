@@ -167,13 +167,15 @@ The decorator `Property` is used to save the fields into redis.
 
 Optionally, you can pass the options `indexed` if you want to use the field to sort or to use as a condition in the 'list' method or `searchable` if you want to use pattern matching in this field.
 
+You can also set a default value.
+
 Both options are false by default.
 
 ```ts
 @Entity('user')
 export class User {
 
-    @Property({indexed: true, searchable: false})
+    @Property({indexed: true, searchable: false, defaultValue: 'foo'})
     public readonly created: Date;
 
 }

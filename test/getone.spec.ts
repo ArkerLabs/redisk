@@ -47,6 +47,18 @@ describe('Get one by non-existent unique key', () => {
     });
 });
 
+
+describe('Get one with a default value', () => {
+    it('should return the setted default value if is undefined', async () => {
+        const id = '::defaultvalueid::';
+        const created = new Date();
+        const user = new User(id, 'Enver', null, 'enver@me.com', null, null, null, created);
+        await utils.redisk.save(user);
+        expect((await utils.redisk.getOne(User, id)).description).toEqual('Empty');
+    });
+});
+
+
 describe('Get one by a key that is not unique', () => {
     it('should throw error', async () => {
         expect(utils.redisk.getOne(User, users[2].name, 'name')).rejects.toEqual(new Error('name is not an unique field!'));

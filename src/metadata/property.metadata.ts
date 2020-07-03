@@ -3,4 +3,5 @@ export interface PropertyMetadata {
     type: string;
     searchable: boolean;
     indexed: boolean;
+    defaultValue: any;
 }

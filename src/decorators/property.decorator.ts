@@ -1,7 +1,7 @@
 import { MetadataStorage } from '../metadata/metadata.storage';
 import 'reflect-metadata';
 
-export function Property(options: {searchable?: boolean, indexed?: boolean} = {
+export function Property(options: {searchable?: boolean, indexed?: boolean, defaultValue?: any} = {
     searchable: false,
     indexed: false,
 // tslint:disable-next-line: ban-types
@@ -23,6 +23,7 @@ export function Property(options: {searchable?: boolean, indexed?: boolean} = {
             searchable: options.searchable,
             indexed: options.indexed,
             type,
+            defaultValue: options.defaultValue,
         };
     };
 }

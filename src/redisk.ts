@@ -411,6 +411,7 @@ export class Redisk {
 
         const result = await this.client.hmget(hashKey, Object.keys(properties).map(key => properties[key].name));
         const propertiesArray = Object.keys(properties).map(key => properties[key]);
+
         let index = 0;
         for (const resultKey of result) {
             if (hasOneRelations !== undefined && hasOneRelations[propertiesArray[index].name] && resultKey !== null) {
@@ -435,6 +436,10 @@ export class Redisk {
 
     private convertStringToPropertyType(property: PropertyMetadata, value: string): any {
         let convertedValue: any = value;
+
+        if ((value === 'undefined' || value === null) && property.defaultValue !== undefined) {
+            return property.defaultValue;
+        }
 
         switch (property.type) {
             case 'Boolean':

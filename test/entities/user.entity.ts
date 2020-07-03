@@ -16,7 +16,7 @@ export class User {
   @Property({searchable: true})
   public readonly name: string;
 
-  @Property()
+  @Property({defaultValue: 'Empty'})
   public readonly description: string;
 
   @Unique()
